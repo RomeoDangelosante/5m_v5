@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+{% for bookmark in bookmarks %}
+    <div class="bookmark">
+        <h3>{{ bookmark.title }}</h3>
+        <p>{{ bookmark.body }}</p>
+        <small>Autore: {{ bookmark.username }}</small>
+    </div>
+{% endfor %}

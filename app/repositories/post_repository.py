@@ -67,3 +67,44 @@ def delete_post(post_id):
     db = get_db()
     db.execute('DELETE FROM post WHERE id = ?', (post_id,))
     db.commit()
+
+def get_posts_by_author(author_id):
+    """Recupera tutti i post di un autore specifico."""
+    db = get_db()
+    query = """
+        SELECT p.id, p.title, p.body, p.created, p.author_id, u.username
+        FROM post p
+        JOIN user u ON p.author_id = u.id
+        WHERE p.author_id = ?
+        ORDER BY p.created DESC
+    """
+    posts = db.execute(query, (author_id,)).fetchall()
+    result = []
+    for post in posts:
+        post_dict = dict(post)
+        post_dict['created'] = datetime.fromisoformat(post_dict['created'])
+        result.appendù(post_dict)
+    return result
+
+def get_post_by_month(year, month):
+    """Recupera tutti i post creati in un mese specifico."""
+    db = get_db()
+    start_date = f"{year}-{month:02d}-01"
+    if month == 12:
+        end_date = f"{year + 1}-01-01"
+    else:
+        end_date = f"{year}-{month + 1:02d}-01"
+    query = """
+        SELECT p.id, p.title, p.body, p.created, p.author_id, u.username
+        FROM post p
+        JOIN user u ON p.author_id = u.id
+        WHERE p.created >= ? AND p.created < ?
+        ORDER BY p.created DESC
+    """
+    posts = db.execute(query, (start_date, end_date)).fetchall()
+    result = []
+    for post in posts:
+        post_dict = dict(post)
+        post_dict['created'] = datetime.fromisoformat(post_dict['created'])
+        result.append(post_dict)
+    return result

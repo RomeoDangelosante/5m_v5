@@ -15,7 +15,14 @@ CREATE TABLE post (
   body TEXT NOT NULL,
   FOREIGN KEY (author_id) REFERENCES user (id)
 );
-
+CREATE TABLE bookmark (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  post_id INTEGER NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES user (id),
+  FOREIGN KEY (post_id) REFERENCES post (id)
+);
 INSERT INTO user (username, password) VALUES ('admin', 'adminpass');
 INSERT INTO user (username, password) VALUES ('student', 'studentpass');
 

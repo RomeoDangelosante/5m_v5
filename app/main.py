@@ -96,3 +96,40 @@ def delete(id):
     # 3. Cancella
     post_repository.delete_post(id)
     return redirect(url_for('main.index'))
+#route int id per visualizzare il dettaglio del singolo post
+@bp.route('/post/<int:id>')
+def post_detail(id) :
+    post = post_repository.get_post_by_id(id)
+    if post is None:
+        abort(404, f"Il post id {id} non esiste.")
+    return render_template('blog/post_detail.html', post=post)
+
+@bp.route('/archive/<int:year>/<int:month>')
+def archive(year, month):
+    posts = post_repository.get_post_by_month(year, month)
+    return render_template('blog/archive.html', posts=posts, year=year, month=month)
+
+@bp.route('/post/<int:id>/bookmark', methods=('POST',))
+def bookmark_post(id):
+    if g.user is None:
+        return redirect(url_for('auth.login'))
+    
+    post = post_repository.get_post_by_id(id)
+    if post is None:
+        abort(404, f"Il post id {id} non esiste.")
+    
+    from app.repositories import bookmark_repository
+    if not bookmark_repository.is_post_bookmarked(g.db, g.user['id'], id):
+        bookmark_repository.add_bookmark(g.db, g.user['id'], id)
+    
+    return redirect(url_for('main.post_detail', id=id))
+
+@bp.route('/GET/bookmarks', methods=('GET',))
+def view_bookmarks():
+    if g.user is None:
+        return redirect(url_for('auth.login'))
+    
+    from app.repositories import bookmark_repository
+    bookmarks = bookmark_repository.get_user_bookmarks(g.db, g.user['id'])
+    
+    return render_template('blog/bookmarks.html', bookmarks=bookmarks)
